@@ -21,13 +21,18 @@ class holo : public ofBaseApp{
                 void update_webcam();
                 void draw_webcam();
 
+		ofEasyCam camera;
                 ofVideoPlayer mm;
                 ofShader xholo;
                 ofImage img;
-                ofFbo fbo;
+                ofFbo fbo,fboImg,fbobo;
                 ofTrueTypeFont font;
                 ofVideoPlayer mov;
-                ofVideoGrabber cam;
+                ofVideoGrabber cam
+;
                 int camWidth,w;
-                int camHeight,h; 
+                int camHeight,h;
+		string buffer;
+		float state = 1.0;
+		int xMouse,yMouse,zMouse;
 };

@@ -1,11 +1,5 @@
 #include "holo.h"
 
-ofFbo fboImg,fbobo;
-string buffer;
-float state = 1.0;
-ofEasyCam camera;
-int xMouse,yMouse,zMouse;
-
 void holo::setup_webcam(){
    camWidth  = 800;
    camHeight = 600;
