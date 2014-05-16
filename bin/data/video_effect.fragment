@@ -1,0 +1,36 @@
+#extension GL_ARB_texture_rectangle:enable
+
+#define AMPLIFER 2.0
+uniform sampler2DRect iCh;
+uniform sampler2DRect iCh1;
+uniform float iGlobalTime;
+uniform vec4  iMouse;
+uniform vec3  iResolution;
+
+float SPOT_SIZE = 600.0;
+float BUMP_STRENGTH = 4.0;
+float SPOT_BRIGHTNESS = 2.1;
+
+vec4 HEIGHT_VECTOR = vec4(1.0/3.0, 1.0/3.0, 1.0/3.0, 0.0);
+
+float getHeight(sampler2DRect channel, vec2 offset) {
+	return dot(texture2DRect(channel, offset), HEIGHT_VECTOR);
+}
+
+void main(void) {
+
+	float upHeight 	         = getHeight(iCh1,     gl_FragCoord.xy + vec2(0,-1));
+	float bottomHeight       = getHeight(iCh,      gl_FragCoord.xy + vec2(0,+iGlobalTime));
+	float leftHeight         = getHeight(iCh1,     gl_FragCoord.xy + vec2(-1,0));
+	float rightHeight        = getHeight(iCh,      gl_FragCoord.xy + vec2(iGlobalTime,0));
+	float dx = (rightHeight - leftHeight) * BUMP_STRENGTH;
+	float dy = (bottomHeight - upHeight) * BUMP_STRENGTH;
+	float dz = sqrt (1.0 - dx*dx - dy*dy);	
+	vec3 normal = vec3(dx,dy,dz);
+	vec2 mouse = iMouse.xy - gl_FragCoord.xy;
+	float bumpMultiplier = dot(normal, vec3(mouse/iResolution.y,1.0));
+	float spotMultiplier = min(exp(2.0-length(mouse)/SPOT_SIZE), SPOT_BRIGHTNESS);
+	vec2 uv =  gl_FragCoord.xy;
+	vec4 color = texture2DRect(iCh,uv);
+	gl_FragColor = color * bumpMultiplier * spotMultiplier;
+}

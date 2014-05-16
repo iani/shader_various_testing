@@ -1,0 +1,16 @@
+void main(void)
+{
+	float gridSize = max(iMouse.x/8.0, 0.1); //Divided by 8 because it gets too unseeable
+	
+	float gridSizeX = gridSize/iResolution.x;
+	float gridSizeY = gridSize/iResolution.y;
+	
+	float uvx = gl_FragCoord.x / iResolution.x;
+	float uvy = gl_FragCoord.y / iResolution.y;
+	
+	float gx = floor(uvx/gridSizeX)*gridSizeX;
+	float gy = floor(uvy/gridSizeY)*gridSizeY;
+	
+	gl_FragColor = vec4(gx,gy,0,1.0);
+	gl_FragColor += texture2D(iChannel0, vec2(gx, gy));
+}

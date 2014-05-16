@@ -1,0 +1,43 @@
+uniform vec3 res;
+uniform float time;
+uniform sampler2DRect texture;
+
+mat2 rotate(float angle) {
+	float si = sin(angle);
+	float co = cos(angle);
+	return mat2(co, si, -si, co);
+}
+
+vec3 appcolor(in float h) {
+	h = fract(h);
+	return clamp((abs(fract(h + vec3(3.0, 2.0, 1.0) / 3.0) * 6.0-3.0) - 1.0), 0.0 , 1.0);
+}
+
+void main(void)
+{	
+	float time = time;
+	vec2 pixel = (gl_FragCoord.xy - res.xy*.5)/res.xy 
+							+ vec2(0.0,.1-smoothstep(9.0, 12.0, time)*.35
+							+ smoothstep(18.0, 20.0, time)*.15);
+	vec3 col;
+	float n;
+	float inc = (smoothstep(17.35, 18.5, time)-smoothstep(18.5, 21.0, time)) * (time-16.0) * 0.1;
+	mat2 rotMat =  rotate(inc);
+	for (int i = 1; i < 50; i++)
+	{
+		pixel = pixel * rotMat;
+		float depth = 40.0+float(i) + smoothstep(18.0, 21.0, time)*65.;
+		vec2 uv = pixel * depth/210.0;
+		col = texture2DRect( texture, gl_FragCoord.xy/fract(uv+vec2(.5 + smoothstep(20.0, 21.0, time)*.11+smoothstep(23.0, 23.5, time)*.04, .7-smoothstep(20.0, 21.0, time)*.2))).rgb;
+		col = mix(col, col * appcolor((float(i)+time)*.52), smoothstep(18.5, 21.5, time));
+		if ((1.0-(col.y*col.y)) < float(i+1) / 50.0) {
+			break;
+		}
+	}
+	col = min(col*col*1.5, 1.0);
+	float gr = smoothstep(17., 16., time) + smoothstep(18.5, 21.0, time);
+	float bl = smoothstep(17., 15., time) + smoothstep(18.5, 21.0, time);
+	col = col * vec3(1.0, gr, bl);
+	col *= smoothstep(29.5, 28.2, time);
+	gl_FragColor = vec4(col, 1.0);
+}

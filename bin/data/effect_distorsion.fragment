@@ -1,0 +1,22 @@
+#extension GL_ARB_texture_rectangle : enable
+
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
+uniform sampler2DRect iCh;
+uniform sampler2DRect iCh1;
+
+void main(void) {
+	vec2 uv = gl_TexCoord[0].xy / iResolution.xy;
+	
+	float w = (0.9 - (uv.x)) * (iResolution.x / iResolution.y);
+        float h = 0.9 - uv.y;
+	vec2 dv = vec2(w,h);
+	float distanceFromCenter = sqrt(dot(dv,dv));
+	
+	float sinArg = distanceFromCenter * 100.0 - iGlobalTime * 10.0;
+	float slope = cos(sinArg) ;
+	vec4 color = texture2DRect(iCh, uv + normalize(vec2(w, h)) * slope * 0.01);
+	
+	gl_FragColor = color;
+}
